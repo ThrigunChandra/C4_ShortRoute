@@ -1,10 +1,5 @@
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
-
 # Shortening
-def test_valid_url():
+def test_valid_url(client):
     response = client.post(
         "/api/links",
         json={"given_url" : "https://example.com/videos"}
@@ -19,7 +14,7 @@ def test_valid_url():
     assert body['short_url'] == f"http://127.0.0.1:8000/{body['short_code']}"
 
 # Testing with different inputss
-def test_invalid_url():
+def test_invalid_url(client):
     response = client.post(
         "api/links",
         json = {

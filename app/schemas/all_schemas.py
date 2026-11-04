@@ -1,0 +1,21 @@
+from pydantic import BaseModel, HttpUrl, Field, EmailStr
+
+class LinkCreate(BaseModel):
+    given_url: HttpUrl
+
+class LinkResponse(BaseModel):
+    given_url : str
+    short_url : str
+    short_code : str
+
+class UserCreate(BaseModel):
+    email : EmailStr
+    username : str = Field(
+        min_length = 3, 
+        max_length = 20, 
+        pattern=r"^[a-z0-9_]+$"
+    )
+    password : str = Field(
+        min_length = 8,
+        max_length = 128
+    )

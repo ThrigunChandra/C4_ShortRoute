@@ -29,12 +29,7 @@ class Link(Base):
     expires_at = Column(
         DateTime(timezone=True)
     )
-
-    is_active = Column(
-        Boolean,
-        nullable=False,
-        server_default=text("true")
-    )
+    
     click_count = Column(
         BigInteger, 
         nullable=False,

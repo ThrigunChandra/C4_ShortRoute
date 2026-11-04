@@ -1,8 +1,8 @@
 from datetime import datetime, timezone, timedelta
 
 from app.database.database import get_db
-from app.services.url_services import generate_short_code
-from app.schemas.url_schema import LinkResponse, LinkCreate
+from app.services.all_services import generate_short_code
+from app.schemas.all_schemas import LinkResponse, LinkCreate
 from app.models.link import Link
 from app.models.user import User
 
@@ -35,7 +35,11 @@ def shorten_url(data: LinkCreate, db : Session = Depends(get_db)):
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-        raise
+        print(exc)
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = 'Failed to create code. Please try again.'
+        )
 
     return {
         "given_url" : str(data.given_url),
