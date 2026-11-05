@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from app.database.database import get_db
 from app.models.user import User
 from app.schemas.all_schemas import UserCreate
@@ -12,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 router = APIRouter()
 
-@router.post("/api/register", status_code = status.HTTP_201_CREATED)
+@router.post("/auth/register", status_code = status.HTTP_201_CREATED)
 def user_register(data:UserCreate, db:Session = Depends(get_db)):
     user = User(
         email = str(data.email), 
@@ -42,7 +40,7 @@ def user_register(data:UserCreate, db:Session = Depends(get_db)):
             raise
 
     return {
-        "Message" : f"User: {data.username} \nCreated Successfully"
+        "Message" : f"{data.username} Created Successfully."
     }
 
     
