@@ -1,9 +1,8 @@
 from app.database.database import get_db
-from app.models.user import User
+from app.models import User
 from app.schemas.all_schemas import UserCreate
 from app.services.all_services import hash_password
 
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException, status 

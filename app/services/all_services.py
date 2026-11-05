@@ -20,3 +20,15 @@ def verify_password(password_hash, password):
         return ph.verify(password_hash, password)
     except VerifyMismatchError:
         return False
+
+import hashlib 
+import secrets
+
+def hash_token(token:str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+def generate_token():
+    return secrets.token_urlsafe(32)
+
+def verify_hash():
+    return None
