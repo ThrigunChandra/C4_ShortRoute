@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 
 router = APIRouter()
 
-@router.post("/auth/login")
+@router.post("/auth/login", status_code = status.HTTP_200_OK)
 def login(data : LoginCred, request:Request, response: Response, db: Session = Depends(get_db)):
     query = select(User).where(str(data.email) == User.email)
     user = db.scalar(query)
@@ -31,10 +31,14 @@ def login(data : LoginCred, request:Request, response: Response, db: Session = D
     old_token = request.cookies.get("session_token")
 
     # If exists then update revoked_at attribs
+    # Made a mistake here rectified it 
     if old_token:
         db.execute(
             update(LoginSession)
-                .where(LoginSession.token_hash == old_token), LoginSession.revoked_at.is_(None)
+            .where(
+                LoginSession.token_hash == hash_token(old_token), 
+                LoginSession.revoked_at.is_(None)
+            )
                 .values(revoked_at=now)
             )
 
