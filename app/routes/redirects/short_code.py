@@ -2,20 +2,21 @@ from datetime import timezone, datetime
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from fastapi import status, HTTPException, Depends, APIRouter, RedirectResponse
+from fastapi import status, HTTPException, Depends, APIRouter
+from fastapi.responses import RedirectResponse
 
 from app.database.database import get_db
 
-router = APIRouter
+router = APIRouter()
 
 @router.get("/{short_code}", status_code = status.HTTP_302_FOUND)
 def redirect(short_code : str, db:Session = Depends(get_db)):
     # Temporary checking 
-    print("Received Code: ", short_code)
+
 
     # Checking for shortcode in DB
     res = db.execute(text("SELECT destination_url, expires_at from links where short_code = :code"), {"code" : short_code}).fetchone()
-    print(res)
+
     # If returned Nothing 
     if not res:
         raise HTTPException(
