@@ -1,28 +1,33 @@
+# Three tasks Login -> Check Me -> Logout 
 def test_login_me_logout(client):
-    # Creating a User 
+    # User Account details 
     account = {
         "username" : "user",
         "email" : "user@example.com",
         "password" : "userpassword"
     }
 
+
+    # # Register request 
     registered = client.post(
         "/auth/register",
         json = account
     )
     assert registered.status_code == 201, registered.text 
 
+    ## Login Request 
     login = client.post("/auth/login", json={
         "email":account["email"],
         "password" : account["password"]
     })
-
     assert login.status_code == 200, login.text 
 
+    # Check for token
     token = client.cookies.get("session_token")
-
     assert token 
 
+
+    # # Check for me 
     me = client.get("/auth/me")
 
     assert me.status_code == 200, me.text 
