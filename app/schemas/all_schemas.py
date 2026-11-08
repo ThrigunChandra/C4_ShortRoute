@@ -2,6 +2,12 @@ from pydantic import BaseModel, HttpUrl, Field, EmailStr
 
 class LinkCreate(BaseModel):
     given_url: HttpUrl
+    custom_slug: str | None = Field(
+        default = None,
+        min_length = 3,
+        max_length = 20, 
+        pattern = r"^[a-z0-9_]+$"
+    )
 
 class LinkResponse(BaseModel):
     given_url : str
