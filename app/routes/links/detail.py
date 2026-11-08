@@ -13,7 +13,7 @@ def get_specific_link(link_id : int, db : Session= Depends(get_db), user : User 
     if user is None:
         raise HTTPException(
             status_code = status.HTTP_401_UNAUTHORIZED,
-            detail="Please Log In"
+            detail="Please Login"
         )
 
     link = db.execute(
