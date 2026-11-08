@@ -32,7 +32,7 @@ def shorten_url(data: LinkCreate, db : Session = Depends(get_db), user : User | 
             detail = "Please update to premium to unlock this feature"
         )
 
-    if user.membership_tier == "premium" and data.custom_slug:
+    if data.custom_slug:
         existing_link = db.execute(
             select(Link)
             .where(Link.custom_slug == data.custom_slug, Link.owner_id == user.id)

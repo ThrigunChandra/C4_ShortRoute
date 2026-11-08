@@ -54,3 +54,45 @@ def client(db_session):
             yield test_client
     finally:
         app.dependency_overrides.pop(get_db, None)
+
+@pytest.fixture(autouse=True)
+def cache_client(monkeypatch):
+    # Every test gets its own Redis keys, separate from the app cache
+    from types import SimpleNamespace
+    from uuid import uuid4
+    from urllib.parse import urlsplit, urlunsplit
+    from redis import Redis
+    from app.services import link_cache
+    from app.config import REDIS_URL
+
+    parts = urlsplit(os.environ.get("TEST_REDIS_URL", REDIS_URL))
+    test_redis_url = urlunsplit(parts._replace(path="/1"))
+    raw = Redis.from_url(
+        test_redis_url, decode_responses=True,
+        socket_connect_timeout=1, socket_timeout=1
+    )
+    prefix = f"test:{uuid4().hex}:"
+    keys_used = set()
+
+    def key_for(key):
+        full_key = prefix + key
+        keys_used.add(full_key)
+        return full_key
+
+    cache = SimpleNamespace(
+        get=lambda key: raw.get(key_for(key)),
+        set=lambda key, value, **kwargs: raw.set(key_for(key), value, **kwargs),
+        delete=lambda *keys: raw.delete(*(key_for(key) for key in keys)),
+        ttl=lambda key: raw.ttl(key_for(key)),
+        exists=lambda key: raw.exists(key_for(key)),
+    )
+    monkeypatch.setattr(link_cache, "redis_client", cache)
+    try:
+        yield cache
+    finally:
+        # Delete only keys used by this test
+        try:
+            if keys_used:
+                raw.delete(*keys_used)
+        finally:
+            raw.close()

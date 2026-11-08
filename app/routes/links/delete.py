@@ -5,6 +5,7 @@ from app.models import Link, User
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, status, Response
+from app.services.link_cache import delete_cached_links
 
 router = APIRouter()
 
@@ -26,8 +27,14 @@ def delete_link_by_id(link_id: int, db : Session = Depends(get_db), user : User 
             status_code = status.HTTP_404_NOT_FOUND,
             detail = "Link Not Found"
         )
+    keys = [f"redirect:code:{link.short_code}"]
+
+    if link.custom_slug is not None:
+        keys.append(f"redirect:slug:{user.username}:{link.custom_slug}")
 
     db.delete(link)
     db.commit()
+
+    delete_cached_links(*keys)
 
     return Response(status_code = status.HTTP_204_NO_CONTENT)
