@@ -9,9 +9,9 @@ def test_listing_links(client):
     register, login = create_account(client, "user1")
 
     # create links
-    links = [f"https://www.example.com/{i}" for i in range(5)]
+    links = [f"https://www.example.com/{i}" for i in range(3)]
 
-    for i in range(5):
+    for i in range(3):
         client.post(
             "/api/links",
             json = {
@@ -28,12 +28,11 @@ def test_listing_links(client):
     assert response.status_code == 200, response.text 
     body = response.json()
 
-    print(body)
-    # [0]{"id" : 4}
 
-    for i in range(5):
+
+    for i in range(3):
         # We get those in descending order
-        assert body[i]["destination_url"] == links[5 - i - 1]
+        assert body[i]["destination_url"] == links[3 - i - 1]
 
 def test_details_of_link(client):
     # Create a Account

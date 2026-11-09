@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -8,7 +8,7 @@ from app.services.link_redirect import get_redirect_url
 router = APIRouter()
 
 
-@router.get("/{username}/{custom_slug}", status_code=302)
+@router.get("/{username}/{custom_slug}", status_code=status.HTTP_302_FOUND)
 def redirect_premium_links(
     username: str,
     custom_slug: str,
@@ -19,4 +19,4 @@ def redirect_premium_links(
         username=username,
         custom_slug=custom_slug,
     )
-    return RedirectResponse(url=url, status_code=302)
+    return RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)

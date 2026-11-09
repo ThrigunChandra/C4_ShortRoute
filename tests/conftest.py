@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.main import app
 from app.database.database import get_db
-
+from app.dependencies.rate_limit import limit_link_creation
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -47,13 +47,18 @@ def client(db_session):
     def override_get_db():
         yield db_session
 
+    def skip_rate_limit():
+        pass
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[limit_link_creation] = skip_rate_limit
 
     try:
         with TestClient(app) as test_client:
             yield test_client
     finally:
         app.dependency_overrides.pop(get_db, None)
+        app.dependency_overrides.pop(limit_link_creation, None)
 
 @pytest.fixture(autouse=True)
 def cache_client(monkeypatch):

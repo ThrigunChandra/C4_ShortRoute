@@ -5,17 +5,23 @@ from app.database.database import get_db
 from app.schemas.all_schemas import LinkCreate, LinkResponse
 from app.services.all_services import generate_short_code
 from app.models import Link, User
+from app.dependencies.rate_limit import limit_link_creation
 
 from fastapi import status, Depends, APIRouter, HTTPException
 
-from sqlalchemy import text, select
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 # Creation of Links is from here 
-@router.post("/api/links", response_model = LinkResponse, status_code = status.HTTP_201_CREATED)
+@router.post(
+        "/api/links", 
+        response_model = LinkResponse, 
+        status_code = status.HTTP_201_CREATED,
+        dependencies = [Depends(limit_link_creation)]
+        )
 def shorten_url(data: LinkCreate, db : Session = Depends(get_db), user : User | None = Depends(get_user)):
     # Short code is created
     code = generate_short_code()
