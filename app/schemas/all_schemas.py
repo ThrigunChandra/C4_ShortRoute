@@ -1,4 +1,16 @@
-from pydantic import BaseModel, HttpUrl, Field, EmailStr
+from pydantic import BaseModel, HttpUrl, Field, EmailStr, field_validator
+
+RESERVED_PATHS={
+    "api",
+    "auth",
+    "docs",
+    "redoc",
+    "openapi",
+    "admin",
+    "login",
+    "logout",
+    "register"
+}
 
 class LinkCreate(BaseModel):
     given_url: HttpUrl
@@ -25,6 +37,11 @@ class UserCreate(BaseModel):
         min_length = 8,
         max_length = 128
     )
+    @field_validator("username")
+    @classmethod
+    def prevent_reserved_username(cls, username: str) -> str:
+        if username in RESERVED_PATHS:
+            raise ValueError("This username is reserved.")
 
 class LoginCred(BaseModel):
     email: EmailStr
